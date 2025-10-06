@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "app.cors.allowed-origins",
+      "type": "java.lang.String",
+      "description": "Comma separated list of allowed origins for CORS."
+    },
+    {
+      "name": "app.storage.upload-dir",
+      "type": "java.lang.String",
+      "description": "Base directory where chat attachments are stored."
+    }
+  ]
+}

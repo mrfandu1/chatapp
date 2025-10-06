@@ -8,17 +8,12 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: DATABASE_URL
-        fromDatabase:
-          name: chatapp-db
-          property: connectionString
+        value: postgresql://neondb_owner:npg_haiKWqIR9Ox8@ep-winter-frog-a1eoplgy-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
       - key: JWT_SECRET
-        generateValue: true
+        value: 26866a08af33947a70ee68be7b5b63226c14d7ce492a870f558ce8f082e27aba
       - key: FRONTEND_URL
-        value: https://your-app.vercel.app
+        value: https://chatappfsd.vercel.app
+      - key: ADMIN_PASSWORD
+        generateValue: true
       - key: JAVA_TOOL_OPTIONS
         value: -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0
-
-databases:
-  - name: chatapp-db
-    databaseName: chatapp
-    user: chatapp

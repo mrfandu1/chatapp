@@ -1,0 +1,6 @@
+[build]
+builder = "NIXPACKS"
+nixpacksConfigPath = "backend/nixpacks.toml"
+
+[deploy]
+startCommand = "java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar backend/target/chatapp.jar"

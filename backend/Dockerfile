@@ -18,7 +18,6 @@ COPY src src
 
 # Build application
 RUN ./mvnw package -DskipTests
-RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
@@ -26,8 +25,8 @@ WORKDIR /app
 # Create uploads directory
 RUN mkdir -p /app/uploads
 
-# Copy built application
-COPY --from=build /app/target/*.jar app.jar
+# Copy built application from build stage
+COPY --from=build /app/target/chatapp.jar app.jar
 
 # Expose port
 EXPOSE 8080

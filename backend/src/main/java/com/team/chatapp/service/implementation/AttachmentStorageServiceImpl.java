@@ -7,6 +7,7 @@ import com.team.chatapp.model.MessageAttachment;
 import com.team.chatapp.service.AttachmentStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "CLOUDINARY_CLOUD_NAME")
 public class AttachmentStorageServiceImpl implements AttachmentStorageService {
 
     private final Cloudinary cloudinary;

@@ -15,5 +15,7 @@ services:
         value: https://chatappfsd.vercel.app
       - key: ADMIN_PASSWORD
         generateValue: true
+      - key: UPLOAD_DIR
+        value: /tmp/uploads
       - key: JAVA_TOOL_OPTIONS
         value: -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0

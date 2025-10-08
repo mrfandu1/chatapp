@@ -11,11 +11,24 @@ const getDefaultApiBaseUrl = () => {
 	return `${protocol}//${hostname}${sanitizedPort}`;
 };
 
+const getWebSocketUrl = (apiBaseUrl) => {
+	// If WS_URL is explicitly set, use it
+	if (process.env.REACT_APP_WS_URL?.trim()) {
+		return trimTrailingSlash(process.env.REACT_APP_WS_URL.trim());
+	}
+	
+	// Auto-convert HTTP/HTTPS to WS/WSS
+	const wsUrl = apiBaseUrl
+		.replace('https://', 'wss://')
+		.replace('http://', 'ws://');
+	
+	return `${wsUrl}/ws`;
+};
+
 const resolvedApiBase = trimTrailingSlash(
 	process.env.REACT_APP_API_BASE_URL?.trim() || getDefaultApiBaseUrl()
 );
 
 export const BASE_API_URL = resolvedApiBase;
-export const WS_ENDPOINT =
-	process.env.REACT_APP_WS_URL?.trim() || `${resolvedApiBase}/ws`;
+export const WS_ENDPOINT = getWebSocketUrl(resolvedApiBase);
 export const TOKEN = 'token';

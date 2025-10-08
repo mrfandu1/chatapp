@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = function override(config) {
   // Add fallbacks for Node.js modules
@@ -30,6 +31,20 @@ module.exports = function override(config) {
       Buffer: ['buffer', 'Buffer'],
     })
   );
+
+  // Ensure HtmlWebpackPlugin is properly configured
+  const htmlPluginIndex = config.plugins.findIndex(
+    plugin => plugin instanceof HtmlWebpackPlugin
+  );
+  
+  if (htmlPluginIndex === -1) {
+    config.plugins.push(
+      new HtmlWebpackPlugin({
+        template: 'public/index.html',
+        inject: true,
+      })
+    );
+  }
 
   return config;
 };

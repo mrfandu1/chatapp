@@ -145,9 +145,13 @@ const Homepage = () => {
     };
 
     const client = new Client({
-      brokerURL: WS_ENDPOINT.replace('http', 'ws'),
+      brokerURL: WS_ENDPOINT,
       connectHeaders: headers,
+      reconnectDelay: 5000,
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000,
       onConnect: () => {
+        console.log('WebSocket connected successfully');
         setTimeout(() => setIsConnected(true), 1000);
       },
       onStompError: (frame) => {
@@ -158,8 +162,18 @@ const Homepage = () => {
         console.error('WebSocket connection error', error);
         setIsConnected(false);
       },
+      onWebSocketClose: () => {
+        console.log('WebSocket connection closed');
+        setIsConnected(false);
+      },
+      onDisconnect: () => {
+        console.log('WebSocket disconnected');
+        setIsConnected(false);
+      },
       debug: (str) => {
-        console.log('STOMP debug:', str);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('STOMP debug:', str);
+        }
       }
     });
 

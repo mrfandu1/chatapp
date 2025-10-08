@@ -18,6 +18,7 @@ export const register = data => async dispatch => {
     const resData = await res.json();
     if (resData.token) {
       localStorage.setItem(TOKEN, resData.token);
+      dispatch(currentUser(resData.token));
     }
     dispatch({ type: actionTypes.REGISTER, payload: resData });
   } catch (error) {
@@ -38,6 +39,7 @@ export const loginUser = data => async dispatch => {
     const resData = await res.json();
     if (resData.token) {
       localStorage.setItem(TOKEN, resData.token);
+      dispatch(currentUser(resData.token));
     }
     dispatch({ type: actionTypes.LOGIN_USER, payload: resData });
   } catch (error) {

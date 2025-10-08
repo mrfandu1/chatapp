@@ -183,7 +183,10 @@ const MessagePage = ({
           isTyping: true
         };
         console.log('Sending typing start:', typingData);
-        stompClient.send('/app/typing', {}, JSON.stringify(typingData));
+        stompClient.publish({
+          destination: '/app/typing',
+          body: JSON.stringify(typingData)
+        });
       } catch (error) {
         console.error('Error sending typing event:', error);
       }
@@ -204,7 +207,10 @@ const MessagePage = ({
             isTyping: false
           };
           console.log('Sending typing stop:', typingData);
-          stompClient.send('/app/typing', {}, JSON.stringify(typingData));
+          stompClient.publish({
+            destination: '/app/typing',
+            body: JSON.stringify(typingData)
+          });
         } catch (error) {
           console.error('Error sending typing stop event:', error);
         }
@@ -292,7 +298,10 @@ const MessagePage = ({
         userId: reqUser.id,
         isTyping: false
       };
-      stompClient.send('/app/typing', {}, JSON.stringify(typingData));
+      stompClient.publish({
+        destination: '/app/typing',
+        body: JSON.stringify(typingData)
+      });
     }
     
     // Clear typing timeout

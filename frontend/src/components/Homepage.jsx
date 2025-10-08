@@ -9,8 +9,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
-import SockJS from 'sockjs-client';
-import { over } from 'stompjs';
+import { Client } from '@stomp/stompjs';
 
 import { TOKEN, WS_ENDPOINT, BASE_API_URL } from '../config/Config';
 import EditGroupChat from './editChat/EditGroupChat';
@@ -106,12 +105,15 @@ const Homepage = () => {
   useEffect(() => {
     if (messageState.newMessage && stompClient && currentChat && isConnected) {
       const webSocketMessage = { ...messageState.newMessage, chat: currentChat };
-      stompClient.send('/app/messages', {}, JSON.stringify(webSocketMessage));
+      stompClient.publish({
+        destination: '/app/messages',
+        body: JSON.stringify(webSocketMessage)
+      });
     }
   }, [messageState.newMessage, stompClient, currentChat, isConnected]);
 
   useEffect(() => {
-    if (isConnected && stompClient && stompClient.connected && authState.reqUser) {
+    if (isConnected && stompClient && stompClient.active && authState.reqUser) {
       const subscription = stompClient.subscribe(`/topic/${authState.reqUser.id}`, onMessageReceive);
       return () => subscription.unsubscribe();
     }
@@ -142,24 +144,31 @@ const Homepage = () => {
       Authorization: `${AUTHORIZATION_PREFIX}${token}`
     };
 
-  const socket = new SockJS(WS_ENDPOINT);
-    const client = over(socket);
+    const client = new Client({
+      brokerURL: WS_ENDPOINT.replace('http', 'ws'),
+      connectHeaders: headers,
+      onConnect: () => {
+        setTimeout(() => setIsConnected(true), 1000);
+      },
+      onStompError: (frame) => {
+        console.error('STOMP error', frame);
+        setIsConnected(false);
+      },
+      onWebSocketError: (error) => {
+        console.error('WebSocket connection error', error);
+        setIsConnected(false);
+      },
+      debug: (str) => {
+        console.log('STOMP debug:', str);
+      }
+    });
 
-    const handleConnect = () => {
-      setTimeout(() => setIsConnected(true), 1000);
-    };
-
-    const handleError = error => {
-      console.error('WebSocket connection error', error);
-      setIsConnected(false);
-    };
-
-    client.connect(headers, handleConnect, handleError);
+    client.activate();
     setStompClient(client);
 
     return () => {
-      if (client.connected) {
-        client.disconnect();
+      if (client.active) {
+        client.deactivate();
       }
       setIsConnected(false);
     };

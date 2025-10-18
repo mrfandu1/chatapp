@@ -1,4 +1,4 @@
-import { Avatar, IconButton, InputAdornment, Menu, MenuItem, TextField } from '@mui/material';
+import { Avatar, IconButton, InputAdornment, Menu, MenuItem, TextField, Tooltip } from '@mui/material';
 import { getChatName, getInitialsFromName } from '../utils/Utils';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './MesaggePage.module.scss';
@@ -17,6 +17,7 @@ import AddIcon from '@mui/icons-material/Add';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import ImageIcon from '@mui/icons-material/Image';
 import { useTheme } from '../../context/ThemeContext';
+import { AnimatedArrowIcon } from '../../assets/sidebarVercelIcons';
 
 const MessagePage = ({
   chat,
@@ -28,7 +29,9 @@ const MessagePage = ({
   setIsShowEditGroupChat,
   setCurrentChat,
   stompClient,
-  isConnected
+  isConnected,
+  isSidebarCollapsed,
+  onToggleSidebar
 }) => {
   const [messageQuery, setMessageQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -377,6 +380,17 @@ const MessagePage = ({
       <div className={styles.messagePageHeaderContainer}>
         <div className={styles.messagePageInnerHeaderContainer}>
           <div className={styles.messagePageHeaderNameContainer}>
+            {/* Sidebar Toggle Button */}
+            <Tooltip 
+              title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'} 
+              placement="bottom" 
+              arrow
+            >
+              <IconButton onClick={onToggleSidebar} className={styles.headerIconButton}>
+                <AnimatedArrowIcon size={20} isCollapsed={isSidebarCollapsed} />
+              </IconButton>
+            </Tooltip>
+            
             <Avatar className={styles.chatAvatar}>
               {getInitialsFromName(getChatName(chat, reqUser))}
             </Avatar>

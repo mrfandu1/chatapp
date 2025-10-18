@@ -7,218 +7,81 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   overflow: hidden;
   transition: background-color 0.3s ease;
+  padding: 8px;
 }
 
-.sideBarContainer {
+.contentGroup {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  transition: all 0.2s ease-in-out;
+}
+
+.sideBarWrapper {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 23rem;
-  height: 100vh;
-  background: var(--bg-secondary, #0a0a0a);
-  border-right: 1px solid var(--border-color, rgba(167, 139, 250, 0.1));
-  transition: width 0.3s ease, background-color 0.3s ease;
-  overflow: hidden;
-  min-width: 6.5rem;
-}
-
-.sideBarContainer.collapsed {
-  width: 6.5rem;
+  height: 100%;
+  min-height: 0;
 }
 
 .profileContainer {
   width: 100%;
   height: 100%;
   background: var(--bg-primary, #000000);
-}
-
-.sideBarInnerContainer {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.navContainer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
-}
-
-.navCollapsed {
-  justify-content: center;
-}
-
-.sidebarTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.actionsGroup {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.actionButton {
-  background: transparent !important;
-  color: var(--text-primary, #e5e5e5) !important;
-  border: none !important;
-  
-  &:hover {
-    background: var(--bg-hover, rgba(167, 139, 250, 0.15)) !important;
-  }
-}
-
-.searchContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 1.5rem 1rem;
-}
-
-.searchCollapsed {
-  justify-content: center;
-  padding-top: 0.25rem;
-}
-
-.searchField :global(.MuiOutlinedInput-root) {
-  background: var(--input-bg, rgba(20, 20, 20, 0.95));
-  color: var(--text-primary, #e5e5e5);
-  border-radius: 0.5rem;
-  transition: box-shadow 0.2s ease, background-color 0.3s ease;
-  height: 2.5rem;
-}
-
-.searchField :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) {
-  border-color: rgba(167, 139, 250, 0.5);
-}
-
-.searchField :global(.MuiOutlinedInput-notchedOutline) {
-  border-color: var(--input-border, rgba(54, 54, 54, 0.6));
-}
-
-.searchField :global(.Mui-focused .MuiOutlinedInput-notchedOutline) {
-  border-color: rgba(84, 84, 84, 0.8);
-  box-shadow: none;
-}
-
-.searchField :global(.MuiInputBase-input),
-.searchField :global(.MuiInputAdornment-root),
-.searchField :global(.MuiInputLabel-root) {
-  color: var(--text-secondary, #a8a8a8);
-}
-
-.searchIconButton {
-  background: transparent !important;
-  color: var(--text-primary, #fafafa) !important;
-  
-  &:hover {
-    background: var(--bg-hover, rgba(38, 38, 38, 0.5)) !important;
-  }
-}
-
-.chatsContainer {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 0.5rem 0.5rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(62, 62, 62, 0.5) transparent;
-  min-height: 0;
-}
-
-.chatsCollapsed {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem 0;
-}
-
-.chatsContainer::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chatsContainer::-webkit-scrollbar-thumb {
-  background: rgba(62, 62, 62, 0.5);
-  border-radius: 999px;
-}
-
-.chatsContainer::-webkit-scrollbar-thumb:hover {
-  background: rgba(82, 82, 82, 0.7);
-}
-
-.sidebarFooter {
-  padding: 1rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  border-top: 1px solid var(--border-color, rgba(38, 38, 38, 0.5));
-}
-
-.profileSummary {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: transparent;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.profileSummary:hover {
-  background: var(--bg-hover, rgba(38, 38, 38, 0.5));
-}
-
-.profileSummaryCollapsed {
-  justify-content: center;
-}
-
-.profileText {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.profileName {
-  font-weight: 600;
-  font-size: 0.9375rem;
-  margin: 0;
-  color: var(--text-primary, #fafafa);
-}
-
-.profileHint {
-  font-size: 0.75rem;
-  color: var(--text-secondary, #a8a8a8);
+  border-radius: 12px;
 }
 
 .messagesContainer {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--bg-primary, #000000);
+  background: var(--bg-secondary, #0a0a0a);
+  border: 1px solid var(--border-color, rgba(167, 139, 250, 0.1));
+  border-radius: 12px;
   overflow: hidden;
   min-width: 0;
   transition: background-color 0.3s ease;
+  position: relative;
 }
 
-.chatRow {
+.toggleTrigger {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  max-width: max-content;
+  
+  // Hide when there's content in messages (chat is open)
+  &.hideWhenChatOpen {
+    display: none;
+  }
+}
+
+.toggleButton {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-secondary, #a8a8a8);
   cursor: pointer;
-}
+  transition: background 0.15s ease;
 
-.listDivider {
-  border-color: var(--border-color, rgba(38, 38, 38, 0.5)) !important;
-  margin: 0.25rem 0;
+  &:hover {
+    background: rgba(167, 139, 250, 0.1);
+  }
+  
+  :global(.sidebar-icon-trigger) {
+    rect {
+      transition: width 0.15s ease-in-out;
+    }
+  }
 }
 
 @media (max-width: 900px) {
@@ -226,29 +89,27 @@
     flex-direction: column;
     height: auto;
     min-height: 100vh;
+    padding: 4px;
   }
 
-  .sideBarContainer {
+  .contentGroup {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sideBarWrapper {
     width: 100%;
     height: auto;
-    border-right: none;
-    border-bottom: 1px solid rgba(38, 38, 38, 0.5);
-  }
-
-  .sideBarContainer.collapsed {
-    width: 100%;
   }
 
   .messagesContainer {
     height: auto;
-    min-height: calc(100vh - 4rem);
+    min-height: calc(100vh - 400px);
   }
-
-  .actionsGroup {
-    justify-content: flex-end;
-  }
-
-  .sidebarFooter {
-    padding: 0.85rem 1rem;
+  
+  .toggleTrigger {
+    position: relative;
+    top: 0;
+    left: 0;
   }
 }

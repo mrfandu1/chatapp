@@ -2,5 +2,7 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  z-index: 9999;
+  z-index: 1001; /* Above message header (z-index: 2) and sidebar (z-index: 10) */
+  /* Ensure it doesn't overlap with message header */
+  pointer-events: auto;
 }

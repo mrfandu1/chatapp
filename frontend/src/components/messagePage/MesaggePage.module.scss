@@ -14,6 +14,8 @@
   padding: 0.875rem 1.5rem;
   box-sizing: border-box;
   transition: background-color 0.3s ease;
+  position: relative;
+  z-index: 2; // Ensure header is above content but below theme toggle
 }
 
 .messagePageInnerHeaderContainer {
@@ -21,6 +23,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  padding-right: 60px; // Add space for theme toggle on the right
 }
 
 .messagePageHeaderNameContainer {
@@ -45,6 +48,23 @@
 
 .headerIconButton {
   color: var(--text-primary, #fafafa) !important;
+  
+  // Style for the sidebar toggle icon
+  :global(.sidebar-icon-trigger) {
+    rect {
+      transition: width 0.15s ease-in-out;
+    }
+  }
+  
+  &:hover :global(.sidebar-icon-trigger) {
+    rect.collapsed {
+      width: 6px;
+    }
+    
+    rect.expanded {
+      width: 3px;
+    }
+  }
 }
 
 .searchField {

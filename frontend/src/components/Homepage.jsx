@@ -2,13 +2,7 @@ import styles from './Homepage.module.scss';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Avatar, Divider, IconButton, InputAdornment, TextField, Tooltip } from '@mui/material';
-import ChatIcon from '@mui/icons-material/Chat';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import SearchIcon from '@mui/icons-material/Search';
-import ClearIcon from '@mui/icons-material/Clear';
+import { Tooltip } from '@mui/material';
 import { Client } from '@stomp/stompjs';
 
 import { TOKEN, WS_ENDPOINT, BASE_API_URL } from '../config/Config';
@@ -16,7 +10,6 @@ import EditGroupChat from './editChat/EditGroupChat';
 import Profile from './profile/Profile';
 import { currentUser, logoutUser } from '../redux/auth/AuthAction';
 import { getUserChats, markChatAsRead } from '../redux/chat/ChatAction';
-import ChatCard from './chatCard/ChatCard';
 import { getInitialsFromName } from './utils/Utils';
 import WelcomePage from './welcomePage/WelcomePage';
 import MessagePage from './messagePage/MessagePage';
@@ -24,6 +17,8 @@ import { createMessage, getAllMessages } from '../redux/message/MessageAction';
 import { AUTHORIZATION_PREFIX } from '../redux/Constants';
 import CreateGroupChat from './editChat/CreateGroupChat';
 import CreateSingleChat from './editChat/CreateSingleChat';
+import VercelSidebar from './sidebar/VercelSidebar';
+import { AnimatedArrowIcon } from '../assets/sidebarVercelIcons';
 
 const Homepage = () => {
   const authState = useSelector(state => state.auth);
@@ -39,7 +34,6 @@ const Homepage = () => {
   const [isShowProfile, setIsShowProfile] = useState(false);
   const [initials, setInitials] = useState('');
   const [query, setQuery] = useState('');
-  const [focused, setFocused] = useState(false);
   const [currentChat, setCurrentChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -48,6 +42,7 @@ const Homepage = () => {
   const [messageReceived, setMessageReceived] = useState(false);
   const [subscribeTry, setSubscribeTry] = useState(1);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarHoverOpen, setIsSidebarHoverOpen] = useState(false);
 
   useEffect(() => {
     if (token && !authState.reqUser) {
@@ -67,20 +62,6 @@ const Homepage = () => {
       setInitials(letters);
     }
   }, [authState.reqUser?.fullName]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (typeof window === 'undefined') {
-        return;
-      }
-      const shouldCollapse = window.innerWidth < 900;
-      setIsSidebarCollapsed(prev => (shouldCollapse ? true : prev));
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     if (token) {
@@ -240,24 +221,32 @@ const Homepage = () => {
   };
 
   const toggleSidebar = () => {
-    setIsSidebarCollapsed(prev => !prev);
+    setIsSidebarCollapsed(!isSidebarCollapsed);
   };
 
-  const openSidebar = () => {
-    setIsSidebarCollapsed(false);
+  const handleToggleHoverEnter = () => {
+    if (isSidebarCollapsed) {
+      setIsSidebarHoverOpen(true);
+    }
+  };
+
+  const handleToggleHoverLeave = () => {
+    setIsSidebarHoverOpen(false);
+  };
+
+  const handleSidebarHoverEnter = () => {
+    if (isSidebarCollapsed) {
+      setIsSidebarHoverOpen(true);
+    }
+  };
+
+  const handleSidebarHoverLeave = () => {
+    setIsSidebarHoverOpen(false);
   };
 
   const onLogout = () => {
     dispatch(logoutUser());
     navigate('/signin');
-  };
-
-  const onChangeQuery = event => {
-    setQuery(event.target.value.toLowerCase());
-  };
-
-  const onClearQuery = () => {
-    setQuery('');
   };
 
   const onClickChat = chat => {
@@ -267,39 +256,6 @@ const Homepage = () => {
     setCurrentChat(chat);
   };
 
-  const getSearchEndAdornment = () => (
-    query.length > 0 && (
-      <InputAdornment position="end">
-        <IconButton onClick={onClearQuery}>
-          <ClearIcon />
-        </IconButton>
-      </InputAdornment>
-    )
-  );
-
-  const chatsToRender = useMemo(() => {
-    if (!chatState.chats) {
-      return [];
-    }
-    const normalizedQuery = query.trim().toLowerCase();
-    return chatState.chats.filter(chat => {
-      if (!normalizedQuery) {
-        return true;
-      }
-
-      if (chat.isGroup) {
-        return chat.chatName.toLowerCase().includes(normalizedQuery);
-      }
-
-      const [first, second] = chat.users;
-      const otherUser = first.id === authState.reqUser?.id ? second : first;
-      return otherUser.fullName.toLowerCase().includes(normalizedQuery);
-    });
-  }, [authState.reqUser?.id, chatState.chats, query]);
-
-  const isOverlayVisible =
-    isShowCreateSingleChat || isShowCreateGroupChat || isShowEditGroupChat || isShowProfile;
-
   const handleSelectChat = chat => {
     if (token) {
       dispatch(markChatAsRead(chat.id, token));
@@ -307,156 +263,95 @@ const Homepage = () => {
     setCurrentChat(chat);
   };
 
+  const isOverlayVisible =
+    isShowCreateSingleChat || isShowCreateGroupChat || isShowEditGroupChat || isShowProfile;
 
 
   return (
     <div className={styles.appShell}>
-      <aside className={`${styles.sideBarContainer} ${isSidebarCollapsed ? styles.collapsed : ''}`}>
-        {isShowCreateSingleChat && (
-          <CreateSingleChat setIsShowCreateSingleChat={setIsShowCreateSingleChat} />
-        )}
-        {isShowCreateGroupChat && (
-          <CreateGroupChat setIsShowCreateGroupChat={setIsShowCreateGroupChat} />
-        )}
-        {isShowEditGroupChat && (
-          <EditGroupChat
-            setIsShowEditGroupChat={setIsShowEditGroupChat}
-            currentChat={currentChat}
-          />
-        )}
-        {isShowProfile && (
-          <div className={styles.profileContainer}>
-            <Profile onCloseProfile={onCloseProfile} initials={initials} onLogout={onLogout} />
-          </div>
-        )}
-
-        {!isOverlayVisible && (
-          <div className={styles.sideBarInnerContainer}>
-            <div className={`${styles.navContainer} ${isSidebarCollapsed ? styles.navCollapsed : ''}`}>
-              {!isSidebarCollapsed && <h2 className={styles.sidebarTitle}>Chats</h2>}
-              <div className={styles.actionsGroup}>
-                <Tooltip
-                  title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                  placement="bottom"
-                  arrow
-                >
-                  <IconButton onClick={toggleSidebar} className={styles.actionButton} size="large">
-                    {isSidebarCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-                  </IconButton>
-                </Tooltip>
-                {!isSidebarCollapsed && (
-                  <>
-                    <Tooltip title="New chat" placement="bottom" arrow>
-                      <IconButton
-                        onClick={onCreateSingleChat}
-                        className={styles.actionButton}
-                        size="large"
-                      >
-                        <ChatIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Create group" placement="bottom" arrow>
-                      <IconButton
-                        onClick={onCreateGroupChat}
-                        className={styles.actionButton}
-                        size="large"
-                      >
-                        <GroupAddIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </>
-                )}
-              </div>
+      {/* Group wrapper for sidebar hover effect */}
+      <div className={`${styles.contentGroup} group`}>
+        <aside className={styles.sideBarWrapper}>
+          {isShowCreateSingleChat && (
+            <CreateSingleChat setIsShowCreateSingleChat={setIsShowCreateSingleChat} />
+          )}
+          {isShowCreateGroupChat && (
+            <CreateGroupChat setIsShowCreateGroupChat={setIsShowCreateGroupChat} />
+          )}
+          {isShowEditGroupChat && (
+            <EditGroupChat
+              setIsShowEditGroupChat={setIsShowEditGroupChat}
+              currentChat={currentChat}
+            />
+          )}
+          {isShowProfile && (
+            <div className={styles.profileContainer}>
+              <Profile onCloseProfile={onCloseProfile} initials={initials} onLogout={onLogout} />
             </div>
+          )}
 
-            <div className={`${styles.searchContainer} ${isSidebarCollapsed ? styles.searchCollapsed : ''}`}>
-              {!isSidebarCollapsed ? (
-                <TextField
-                  id="search"
-                  type="text"
-                  label="Search your chats ..."
-                  size="small"
-                  fullWidth
-                  value={query}
-                  className={styles.searchField}
-                  onChange={onChangeQuery}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                    endAdornment: getSearchEndAdornment()
-                  }}
-                  InputLabelProps={{
-                    shrink: focused || query.length > 0,
-                    style: { marginLeft: focused || query.length > 0 ? 0 : 30 }
-                  }}
-                  onFocus={() => setFocused(true)}
-                  onBlur={() => setFocused(false)}
-                />
-              ) : (
-                <Tooltip title="Expand to search" placement="right" arrow>
-                  <IconButton onClick={openSidebar} className={styles.searchIconButton}>
-                    <SearchIcon />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </div>
+          {!isOverlayVisible && (
+            <VercelSidebar
+              authState={authState}
+              chatState={chatState}
+              initials={initials}
+              query={query}
+              setQuery={setQuery}
+              onCreateGroupChat={onCreateGroupChat}
+              onCreateSingleChat={onCreateSingleChat}
+              onOpenProfile={onOpenProfile}
+              handleSelectChat={handleSelectChat}
+              isCollapsed={isSidebarCollapsed}
+              isHoverOpen={isSidebarHoverOpen}
+              onSidebarHoverEnter={handleSidebarHoverEnter}
+              onSidebarHoverLeave={handleSidebarHoverLeave}
+              isChatOpen={!!currentChat}
+            />
+          )}
+        </aside>
 
-            <div className={`${styles.chatsContainer} ${isSidebarCollapsed ? styles.chatsCollapsed : ''}`}>
-              {chatsToRender.map((chat, index) => (
-                <div key={chat.id} onClick={() => handleSelectChat(chat)} className={styles.chatRow}>
-                  {!isSidebarCollapsed && index !== 0 && <Divider className={styles.listDivider} />}
-                  <ChatCard chat={chat} isCompact={isSidebarCollapsed} />
-                </div>
-              ))}
-            </div>
-
-            <div className={styles.sidebarFooter}>
-              <div
-                onClick={onOpenProfile}
-                className={`${styles.profileSummary} ${isSidebarCollapsed ? styles.profileSummaryCollapsed : ''}`}
+        {/* Main Content Area with Toggle Button */}
+        <section className={styles.messagesContainer}>
+          {/* Toggle button trigger - this is the hover target */}
+          {/* Only show when no chat is selected */}
+          {!currentChat && (
+            <div 
+              className={`${styles.toggleTrigger} sidebar-icon-trigger`}
+              onMouseEnter={handleToggleHoverEnter}
+              onMouseLeave={handleToggleHoverLeave}
+            >
+              <Tooltip 
+                title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'} 
+                placement="right" 
+                arrow
               >
-                <Avatar
-                  sx={{
-                    width: '2.75rem',
-                    height: '2.75rem',
-                    fontSize: '1.1rem',
-                    background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)'
-                  }}
-                >
-                  {initials}
-                </Avatar>
-                {!isSidebarCollapsed && (
-                  <div className={styles.profileText}>
-                    <p className={styles.profileName}>{authState.reqUser?.fullName}</p>
-                    <span className={styles.profileHint}>View profile & logout</span>
-                  </div>
-                )}
-              </div>
+                <button className={styles.toggleButton} onClick={toggleSidebar}>
+                  <AnimatedArrowIcon size={20} isCollapsed={isSidebarCollapsed} />
+                </button>
+              </Tooltip>
             </div>
-          </div>
-        )}
-      </aside>
+          )}
 
-      <section className={styles.messagesContainer}>
-        {!currentChat && <WelcomePage reqUser={authState.reqUser} />}
-        {currentChat && (
-          <MessagePage
-            chat={currentChat}
-            reqUser={authState.reqUser}
-            messages={messages}
-            newMessage={newMessage}
-            setNewMessage={setNewMessage}
-            onSendMessage={onSendMessage}
-            setIsShowEditGroupChat={setIsShowEditGroupChat}
-            setCurrentChat={setCurrentChat}
-            stompClient={stompClient}
-            isConnected={isConnected}
-          />
-        )}
-      </section>
+          {/* Message content */}
+          {!currentChat && <WelcomePage reqUser={authState.reqUser} />}
+          {currentChat && (
+            <MessagePage
+              chat={currentChat}
+              reqUser={authState.reqUser}
+              messages={messages}
+              newMessage={newMessage}
+              setNewMessage={setNewMessage}
+              onSendMessage={onSendMessage}
+              setIsShowEditGroupChat={setIsShowEditGroupChat}
+              setCurrentChat={setCurrentChat}
+              stompClient={stompClient}
+              isConnected={isConnected}
+              isSidebarCollapsed={isSidebarCollapsed}
+              onToggleSidebar={toggleSidebar}
+            />
+          )}
+        </section>
+      </div>
     </div>
   );
 };
